@@ -4,6 +4,8 @@ namespace FimesAPI.Models
 {
     public class Filme
     {
+        [Key]
+        [Required]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "O campo título é obrigatório")]
