@@ -1,6 +1,5 @@
 ﻿using FimesAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,23 +13,29 @@ namespace FimesAPI.Controllers
         private static int id = 1;
 
         [HttpPost]
-        public void AdicionaFilme([FromBody] Filme filme)
+        public IActionResult AdicionaFilme([FromBody] Filme filme)
         {
             filme.Id = id++;
             filmes.Add(filme);
-            Console.WriteLine(filme);
+
+            return CreatedAtAction(nameof(RecuperaFimesPorId), new { id = filme.Id }, filme);
         }
 
         [HttpGet]
-        public IEnumerable<Filme> RecuperaFimes()
+        public IActionResult RecuperaFimes()
         {
-            return filmes;
+            return Ok(filmes);
         }
 
         [HttpGet("{id}")]
-        public Filme RecuperaFime([FromRoute] int id)
+        public IActionResult RecuperaFimesPorId([FromRoute] int id)
         {
-            return filmes.FirstOrDefault(filme => filme.Id == id);
+            var fime = filmes.FirstOrDefault(filme => filme.Id == id);
+            if (fime != null)
+            {
+                return Ok(fime);
+            }
+            return NotFound();
         }
     }
 }
