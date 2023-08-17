@@ -1,4 +1,5 @@
-﻿using FimesAPI.Models;
+﻿using FimesAPI.Data;
+using FimesAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +10,31 @@ namespace FimesAPI.Controllers
     [Route("[controller]")]
     public class FilmeController : ControllerBase
     {
-        private static List<Filme> filmes = new List<Filme>();
-        private static int id = 1;
+        private FilmeContext _context;
+
+        public FilmeController(FilmeContext context)
+        {
+            _context = context;
+        }
 
         [HttpPost]
         public IActionResult AdicionaFilme([FromBody] Filme filme)
         {
-            filme.Id = id++;
-            filmes.Add(filme);
-
+            _context.Filmes.Add(filme);
+            _context.SaveChanges();
             return CreatedAtAction(nameof(RecuperaFimesPorId), new { id = filme.Id }, filme);
         }
 
         [HttpGet]
-        public IActionResult RecuperaFimes()
+        public IEnumerable<Filme> RecuperaFimes()
         {
-            return Ok(filmes);
+            return _context.Filmes;
         }
 
         [HttpGet("{id}")]
         public IActionResult RecuperaFimesPorId([FromRoute] int id)
         {
-            var fime = filmes.FirstOrDefault(filme => filme.Id == id);
+            var fime = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
             if (fime != null)
             {
                 return Ok(fime);
