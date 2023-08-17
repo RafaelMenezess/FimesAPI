@@ -34,12 +34,42 @@ namespace FimesAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult RecuperaFimesPorId([FromRoute] int id)
         {
-            var fime = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
+            Filme fime = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
             if (fime != null)
             {
                 return Ok(fime);
             }
             return NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult AtualizaFilme(int id, [FromBody] Filme filmenovo)
+        {
+            Filme filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
+            if (filme == null)
+            {
+                return NotFound();
+            }
+            filme.Titulo = filmenovo.Titulo;
+            filme.Genero = filmenovo.Genero;
+            filme.Duracao = filmenovo.Duracao;
+            filme.Diretor = filmenovo.Diretor;
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeletaFilme(int id)
+        {
+            Filme filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
+            if (filme == null)
+            {
+                return NotFound();
+            }
+            _context.Remove(filme);
+            _context.SaveChanges();
+            return NoContent();
         }
     }
 }
