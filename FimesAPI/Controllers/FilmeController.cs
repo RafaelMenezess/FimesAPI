@@ -1,6 +1,8 @@
 ﻿using FimesAPI.Data;
+using FimesAPI.Data.Dtos;
 using FimesAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,8 +20,16 @@ namespace FimesAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AdicionaFilme([FromBody] Filme filme)
+        public IActionResult AdicionaFilme([FromBody] CreateFilmeDto filmeDto)
         {
+            Filme filme = new Filme
+            {
+                Titulo = filmeDto.Titulo,
+                Genero = filmeDto.Genero,
+                Duracao = filmeDto.Duracao,
+                Diretor = filmeDto.Diretor,
+            };
+
             _context.Filmes.Add(filme);
             _context.SaveChanges();
             return CreatedAtAction(nameof(RecuperaFimesPorId), new { id = filme.Id }, filme);
@@ -34,26 +44,36 @@ namespace FimesAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult RecuperaFimesPorId([FromRoute] int id)
         {
-            Filme fime = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
-            if (fime != null)
+            Filme filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
+            if (filme != null)
             {
-                return Ok(fime);
+                ReadFilmeDto filmeDto = new ReadFilmeDto
+                {
+                    Titulo = filme.Titulo,
+                    Diretor = filme.Diretor,
+                    Duracao = filme.Duracao,
+                    Id = filme.Id,
+                    Genero = filme.Genero,
+                    HoraConsulta = DateTime.Now
+                };
+
+                return Ok(filmeDto);
             }
             return NotFound();
         }
 
         [HttpPut("{id}")]
-        public IActionResult AtualizaFilme(int id, [FromBody] Filme filmenovo)
+        public IActionResult AtualizaFilme(int id, [FromBody] UpdateFilmeDto filmeNovoDto)
         {
             Filme filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
             if (filme == null)
             {
                 return NotFound();
             }
-            filme.Titulo = filmenovo.Titulo;
-            filme.Genero = filmenovo.Genero;
-            filme.Duracao = filmenovo.Duracao;
-            filme.Diretor = filmenovo.Diretor;
+            filme.Titulo = filmeNovoDto.Titulo;
+            filme.Genero = filmeNovoDto.Genero;
+            filme.Duracao = filmeNovoDto.Duracao;
+            filme.Diretor = filmeNovoDto.Diretor;
             _context.SaveChanges();
 
             return NoContent();
